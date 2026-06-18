@@ -1,0 +1,20 @@
+{
+  "name": "myloto",
+  "version": "0.1.0",
+  "private": true,
+  "description": "dApp de lotería Powerball sobre Fractal Bitcoin",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @myloto/backend dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:integration": "pnpm -r --workspace-concurrency=1 test:integration",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "db:generate": "pnpm --filter @myloto/db drizzle:generate",
+    "db:migrate": "pnpm --filter @myloto/db drizzle:migrate"
+  }
+}

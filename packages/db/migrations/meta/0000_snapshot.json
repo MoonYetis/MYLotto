@@ -1,0 +1,321 @@
+{
+  "id": "e885a266-bf2f-474f-a6f4-43379dad3248",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.sorteos": {
+      "name": "sorteos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "bloque_cierre": {
+          "name": "bloque_cierre",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ABIERTO'"
+        },
+        "combinacion_ganadora": {
+          "name": "combinacion_ganadora",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "seed_maestra": {
+          "name": "seed_maestra",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bloques_semilla": {
+          "name": "bloques_semilla",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "cerrado_en": {
+          "name": "cerrado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "calculado_en": {
+          "name": "calculado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "sorteos_bloque_cierre_unique": {
+          "name": "sorteos_bloque_cierre_unique",
+          "columns": [
+            {
+              "expression": "bloque_cierre",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "chk_sorteo_estado": {
+          "name": "chk_sorteo_estado",
+          "value": "\"sorteos\".\"estado\" IN ('ABIERTO', 'CERRADO', 'CALCULADO')"
+        }
+      }
+    },
+    "public.tickets": {
+      "name": "tickets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "sorteo_id": {
+          "name": "sorteo_id",
+          "type": "bigserial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_address": {
+          "name": "payment_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_amount": {
+          "name": "expected_amount",
+          "type": "numeric(18, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDIENTE'"
+        },
+        "n1": {
+          "name": "n1",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "n2": {
+          "name": "n2",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "n3": {
+          "name": "n3",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "n4": {
+          "name": "n4",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "n5": {
+          "name": "n5",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "powerball": {
+          "name": "powerball",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_return_address": {
+          "name": "user_return_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recibido_en": {
+          "name": "recibido_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "creado_en": {
+          "name": "creado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tickets_sorteo_status": {
+          "name": "tickets_sorteo_status",
+          "columns": [
+            {
+              "expression": "sorteo_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tickets_payment_address": {
+          "name": "tickets_payment_address",
+          "columns": [
+            {
+              "expression": "payment_address",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tickets_sorteo_combinacion": {
+          "name": "tickets_sorteo_combinacion",
+          "columns": [
+            {
+              "expression": "sorteo_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "n1",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "n2",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "n3",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "n4",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "n5",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "powerball",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tickets_sorteo_id_sorteos_id_fk": {
+          "name": "tickets_sorteo_id_sorteos_id_fk",
+          "tableFrom": "tickets",
+          "tableTo": "sorteos",
+          "columnsFrom": [
+            "sorteo_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "chk_ticket_status": {
+          "name": "chk_ticket_status",
+          "value": "\"tickets\".\"status\" IN ('PENDIENTE', 'ACTIVO')"
+        },
+        "chk_balotas_sorted": {
+          "name": "chk_balotas_sorted",
+          "value": "\"tickets\".\"n1\" < \"tickets\".\"n2\" AND \"tickets\".\"n2\" < \"tickets\".\"n3\" AND \"tickets\".\"n3\" < \"tickets\".\"n4\" AND \"tickets\".\"n4\" < \"tickets\".\"n5\""
+        },
+        "chk_balotas_range": {
+          "name": "chk_balotas_range",
+          "value": "\"tickets\".\"n1\" BETWEEN 1 AND 69\n          AND \"tickets\".\"n2\" BETWEEN 1 AND 69\n          AND \"tickets\".\"n3\" BETWEEN 1 AND 69\n          AND \"tickets\".\"n4\" BETWEEN 1 AND 69\n          AND \"tickets\".\"n5\" BETWEEN 1 AND 69"
+        },
+        "chk_powerball_range": {
+          "name": "chk_powerball_range",
+          "value": "\"tickets\".\"powerball\" BETWEEN 1 AND 26"
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

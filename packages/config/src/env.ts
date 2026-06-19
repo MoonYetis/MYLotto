@@ -20,6 +20,16 @@ const envSchema = z.object({
   // --- Backend ---
   PORT: z.coerce.number().int().positive().default(3000),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+
+  // --- XPUB BIP86 (para derivar direcciones de boletos, nivel m/86'/0'/0') ---
+  // Opcional en desarrollo; el Ciclo 4 lo hará required cuando el backend lo use.
+  XPUB_BIP86: z
+    .string()
+    .min(1)
+    .refine((s) => s.startsWith("xpub"), {
+      message: "XPUB_BIP86 debe empezar con 'xpub' (mainnet BIP86)",
+    })
+    .optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

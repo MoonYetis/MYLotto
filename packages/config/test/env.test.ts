@@ -54,4 +54,21 @@ describe("loadEnv", () => {
   it("lanza si NODE_ENV no es valor permitido", () => {
     expect(() => loadEnv({ ...valid, NODE_ENV: "staging" })).toThrow();
   });
+
+  it("acepta XPUB_BIP86 válido (empieza con xpub)", () => {
+    const env = loadEnv({
+      ...valid,
+      XPUB_BIP86:
+        "xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ",
+    });
+    expect(env.XPUB_BIP86).toMatch(/^xpub/);
+  });
+
+  it("lanza si XPUB_BIP86 no empieza con xpub", () => {
+    expect(() => loadEnv({ ...valid, XPUB_BIP86: "tpub6CPIbm..." })).toThrow();
+  });
+
+  it("lanza si XPUB_BIP86 está vacío", () => {
+    expect(() => loadEnv({ ...valid, XPUB_BIP86: "" })).toThrow();
+  });
 });

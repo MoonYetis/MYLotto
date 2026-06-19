@@ -42,6 +42,28 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.19.21)
 
+  packages/brc20:
+    dependencies:
+      '@myloto/config':
+        specifier: workspace:*
+        version: link:../config
+      '@scure/base':
+        specifier: ^1.1.9
+        version: 1.2.6
+    devDependencies:
+      '@types/node':
+        specifier: ^22.5.0
+        version: 22.19.21
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.21)
+
   packages/config:
     dependencies:
       '@myloto/types':

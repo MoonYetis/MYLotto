@@ -40,7 +40,9 @@ export function renderQrSvg(content: string, opts: QrSvgOptions = {}): string {
   const lightColor = opts.lightColor ?? "#ffffff";
   const margin = opts.margin ?? 4;
 
-  const { data, size: moduleCount } = encode(content, { ecl: "medium" });
+  const { data, size: moduleCount } = encode(content, {
+    ecc: "M", // error correction level M (15% recovery)
+  });
 
   const totalModules = moduleCount + margin * 2;
   const moduleSize = size / totalModules;

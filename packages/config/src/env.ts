@@ -30,6 +30,17 @@ const envSchema = z.object({
       message: "XPUB_BIP86 debe empezar con 'xpub' (mainnet BIP86)",
     })
     .optional(),
+
+  // --- UniSat BRC-20 API (para descuento Hold-to-Earn Moonyetis) ---
+  UNISAT_BASE_URL: z
+    .string()
+    .url()
+    .default("https://open-api-fractal.unisat.io"),
+  UNISAT_API_KEY: z.string().min(1),
+  UNISAT_TIMEOUT_MS: z.coerce.number().int().positive().default(15000),
+
+  // --- Ticker BRC-20 para Hold-to-Earn ---
+  BRC20_TICKER: z.string().min(1).default("Moonyetis"),
 });
 
 export type Env = z.infer<typeof envSchema>;

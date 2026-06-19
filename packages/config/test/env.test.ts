@@ -11,6 +11,7 @@ describe("loadEnv", () => {
     DATABASE_URL: "postgresql://u:p@localhost:5432/myloto",
     PORT: "3000",
     LOG_LEVEL: "info",
+    UNISAT_API_KEY: "sk-test-123",
   } as const;
 
   it("acepta un env completo y válido", () => {
@@ -70,5 +71,28 @@ describe("loadEnv", () => {
 
   it("lanza si XPUB_BIP86 está vacío", () => {
     expect(() => loadEnv({ ...valid, XPUB_BIP86: "" })).toThrow();
+  });
+
+  it("acepta UNISAT_API_KEY y BRC20_TICKER", () => {
+    const env = loadEnv({
+      ...valid,
+      UNISAT_API_KEY: "sk-test-123",
+      BRC20_TICKER: "Moonyetis",
+    });
+    expect(env.UNISAT_API_KEY).toBe("sk-test-123");
+    expect(env.BRC20_TICKER).toBe("Moonyetis");
+  });
+
+  it("aplica defaults UNISAT_BASE_URL, UNISAT_TIMEOUT_MS y BRC20_TICKER", () => {
+    const env = loadEnv({
+      ...valid,
+    });
+    expect(env.UNISAT_BASE_URL).toBe("https://open-api-fractal.unisat.io");
+    expect(env.UNISAT_TIMEOUT_MS).toBe(15000);
+    expect(env.BRC20_TICKER).toBe("Moonyetis");
+  });
+
+  it("lanza si UNISAT_API_KEY está vacío", () => {
+    expect(() => loadEnv({ ...valid, UNISAT_API_KEY: "" })).toThrow();
   });
 });

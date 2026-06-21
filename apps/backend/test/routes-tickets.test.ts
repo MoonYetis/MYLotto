@@ -71,6 +71,7 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       PAYMENT_MIN_CONFIRMATIONS: 1,
       FRACTAL_RPC_WALLET: "",
       DRAW_CHECK_INTERVAL_MS: 30000,
+      SCRUTINY_CHECK_INTERVAL_MS: 60000,
     },
     logger,
     db,

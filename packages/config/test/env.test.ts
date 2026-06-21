@@ -156,4 +156,14 @@ describe("loadEnv", () => {
     const env = loadEnv({ ...valid });
     expect(env.DRAW_CHECK_INTERVAL_MS).toBe(30000);
   });
+
+  it("acepta SCRUTINY_CHECK_INTERVAL_MS custom", () => {
+    const env = loadEnv({ ...valid, SCRUTINY_CHECK_INTERVAL_MS: "120000" });
+    expect(env.SCRUTINY_CHECK_INTERVAL_MS).toBe(120000);
+  });
+
+  it("aplica default SCRUTINY_CHECK_INTERVAL_MS = 60000", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.SCRUTINY_CHECK_INTERVAL_MS).toBe(60000);
+  });
 });

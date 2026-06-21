@@ -12,7 +12,8 @@
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "worker:payments": "tsx src/workers/payment-verifier.ts"
+    "worker:payments": "tsx src/workers/payment-verifier.ts",
+    "worker:draw": "tsx src/workers/draw-verifier.ts"
   },
   "dependencies": {
     "@myloto/brc20": "workspace:*",
@@ -20,6 +21,7 @@
     "@myloto/crypto": "workspace:*",
     "@myloto/db": "workspace:*",
     "@myloto/payments": "workspace:*",
+    "@myloto/randomness": "workspace:*",
     "@myloto/rpc-client": "workspace:*",
     "@myloto/types": "workspace:*",
     "drizzle-orm": "^0.35.0",

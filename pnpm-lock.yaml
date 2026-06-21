@@ -25,6 +25,9 @@ importers:
       '@myloto/payments':
         specifier: workspace:*
         version: link:../../packages/payments
+      '@myloto/randomness':
+        specifier: workspace:*
+        version: link:../../packages/randomness
       '@myloto/rpc-client':
         specifier: workspace:*
         version: link:../../packages/rpc-client

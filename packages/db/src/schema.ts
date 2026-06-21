@@ -7,6 +7,7 @@ import {
   numeric,
   jsonb,
   timestamp,
+  boolean,
   uniqueIndex,
   index,
   check,
@@ -30,7 +31,7 @@ export const sorteos = pgTable(
     bloqueCierreUnique: uniqueIndex("sorteos_bloque_cierre_unique").on(t.bloqueCierre),
     estadoCheck: check(
       "chk_sorteo_estado",
-      sql`${t.estado} IN ('ABIERTO', 'CERRADO', 'CALCULADO')`,
+      sql`${t.estado} IN ('ABIERTO', 'CERRADO', 'CALCULADO', 'FINALIZADO')`,
     ),
   }),
 );
@@ -87,7 +88,46 @@ export const tickets = pgTable(
   }),
 );
 
+export const ganadores = pgTable(
+  "ganadores",
+  {
+    id: bigserial("id", { mode: "bigint" }).primaryKey(),
+    sorteoId: bigserial("sorteo_id", { mode: "bigint" })
+      .notNull()
+      .references(() => sorteos.id, { onDelete: "cascade" }),
+    ticketId: bigserial("ticket_id", { mode: "bigint" })
+      .notNull()
+      .references(() => tickets.id, { onDelete: "cascade" }),
+    tier: smallint("tier").notNull(),
+    monto: numeric("monto", { precision: 18, scale: 8 }).notNull(),
+    pagado: boolean("pagado").notNull().default(false),
+    creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    sorteoTierIdx: index("ganadores_sorteo_tier").on(t.sorteoId, t.tier),
+    ticketIdx: index("ganadores_ticket").on(t.ticketId),
+    tierCheck: check("chk_tier", sql`${t.tier} BETWEEN 1 AND 9`),
+  }),
+);
+
+export const jackpotPool = pgTable(
+  "jackpot_pool",
+  {
+    id: smallint("id").primaryKey().default(1),
+    saldo: numeric("saldo", { precision: 18, scale: 8 }).notNull().default("0"),
+    actualizadoEn: timestamp("actualizado_en", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    singletonCheck: check("chk_singleton", sql`${t.id} = 1`),
+  }),
+);
+
 export type Sorteo = typeof sorteos.$inferSelect;
 export type NuevoSorteo = typeof sorteos.$inferInsert;
 export type Ticket = typeof tickets.$inferSelect;
 export type NuevoTicket = typeof tickets.$inferInsert;
+export type Ganador = typeof ganadores.$inferSelect;
+export type NuevoGanador = typeof ganadores.$inferInsert;
+export type JackpotPool = typeof jackpotPool.$inferSelect;

@@ -8,6 +8,7 @@ export const SORTEO_ESTADO = {
   ABIERTO: "ABIERTO",
   CERRADO: "CERRADO",
   CALCULADO: "CALCULADO",
+  FINALIZADO: "FINALIZADO",
 } as const;
 export type SorteoEstado = (typeof SORTEO_ESTADO)[keyof typeof SORTEO_ESTADO];
 

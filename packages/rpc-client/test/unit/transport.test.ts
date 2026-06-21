@@ -122,4 +122,20 @@ describe("FractalTransport", () => {
     );
     expect(mock.calls).toHaveLength(2); // la 3a ni tocó la red
   });
+
+  it("walletName añade /wallet/<name> a la URL del request", async () => {
+    mock.queue({ body: rpcSuccess(fixtureBlockchainInfo) });
+    const t = makeTransport(mock, { walletName: "myloto_watchonly" });
+    await t.call("getblockchaininfo");
+    expect(mock.calls[0]?.url).toBe(
+      "http://100.64.0.1:8332/wallet/myloto_watchonly",
+    );
+  });
+
+  it("sin walletName, la URL queda sin sufijo /wallet/", async () => {
+    mock.queue({ body: rpcSuccess(fixtureBlockchainInfo) });
+    const t = makeTransport(mock);
+    await t.call("getblockchaininfo");
+    expect(mock.calls[0]?.url).toBe("http://100.64.0.1:8332");
+  });
 });

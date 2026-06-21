@@ -26,6 +26,13 @@ export interface FractalTransportOptions {
   fetchImpl?: FetchImpl;
   /** Inyectar logger para tests. Default: createLogger de @myloto/config. */
   logger?: Logger;
+  /**
+   * Nombre del wallet al que dirigir las llamadas (añade /wallet/<name> a la URL).
+   * Bitcoin Core multi-wallet: si no se especifica, se usa el wallet por defecto.
+   * El worker de MYLoto apunta al wallet watch-only para que getreceivedbyaddress
+   * reconozca las direcciones derivadas.
+   */
+  walletName?: string;
 }
 
 /** Códigos RPC transitorios que sí merecen reintento (Bitcoin Core convention). */
@@ -49,6 +56,8 @@ export class FractalTransport {
   private readonly fetchImpl: FetchImpl;
   private readonly logger: Logger;
   private readonly authHeader: string;
+  /** URL del endpoint RPC, con /wallet/<name> si walletName está definido. */
+  private readonly requestUrl: string;
 
   constructor(options: FractalTransportOptions) {
     this.opts = {
@@ -66,6 +75,10 @@ export class FractalTransport {
       resetMs: this.opts.breakerResetMs,
     });
     this.fetchImpl = options.fetchImpl ?? fetch;
+    // Pre-calcular la URL: añade /wallet/<name> si se especificó walletName.
+    this.requestUrl = options.walletName
+      ? `${this.opts.url.replace(/\/+$/, "")}/wallet/${options.walletName}`
+      : this.opts.url;
     this.logger = options.logger ?? createLogger("info", "rpc-client");
     const token = Buffer.from(
       `${this.opts.username}:${this.opts.password}`,
@@ -126,7 +139,7 @@ export class FractalTransport {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.opts.timeoutMs);
     try {
-      const response = await this.fetchImpl(this.opts.url, {
+      const response = await this.fetchImpl(this.requestUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

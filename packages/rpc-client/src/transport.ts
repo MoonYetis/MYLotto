@@ -50,7 +50,7 @@ const TRANSIENT_ERRNO = new Set<string>([
 
 export class FractalTransport {
   private readonly opts: Required<
-    Omit<FractalTransportOptions, "fetchImpl" | "logger">
+    Omit<FractalTransportOptions, "fetchImpl" | "logger" | "walletName">
   >;
   private readonly breaker: CircuitBreaker;
   private readonly fetchImpl: FetchImpl;

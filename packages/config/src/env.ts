@@ -51,6 +51,9 @@ const envSchema = z.object({
   // --- Wallet del nodo para getreceivedbyaddress (multi-wallet watch-only) ---
   // Vacío = wallet por defecto. "myloto_watchonly" = wallet observador con la XPUB.
   FRACTAL_RPC_WALLET: z.string().default(""),
+
+  // --- Worker de cálculo de sorteos (Ciclo 5) ---
+  DRAW_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(30000),
 });
 
 export type Env = z.infer<typeof envSchema>;

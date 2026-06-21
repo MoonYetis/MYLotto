@@ -58,6 +58,7 @@ function mockDeps(
       PAYMENT_CHECK_INTERVAL_MS: 30000,
       PAYMENT_MIN_CONFIRMATIONS: 1,
       FRACTAL_RPC_WALLET: "",
+      DRAW_CHECK_INTERVAL_MS: 30000,
     },
     logger,
     rpc,

@@ -146,4 +146,14 @@ describe("loadEnv", () => {
     const env = loadEnv({ ...valid });
     expect(env.FRACTAL_RPC_WALLET).toBe("");
   });
+
+  it("acepta DRAW_CHECK_INTERVAL_MS custom", () => {
+    const env = loadEnv({ ...valid, DRAW_CHECK_INTERVAL_MS: "60000" });
+    expect(env.DRAW_CHECK_INTERVAL_MS).toBe(60000);
+  });
+
+  it("aplica default DRAW_CHECK_INTERVAL_MS = 30000", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.DRAW_CHECK_INTERVAL_MS).toBe(30000);
+  });
 });

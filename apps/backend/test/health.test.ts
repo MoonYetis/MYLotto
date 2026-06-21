@@ -49,6 +49,12 @@ function mockDeps(
       UNISAT_API_KEY: "test-key",
       UNISAT_TIMEOUT_MS: 15000,
       BRC20_TICKER: "Moonyetis",
+      XPUB_BIP86:
+        "xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ",
+      TICKET_PRICE_FB: 100,
+      TICKET_DISCOUNT_PRICE_FB: 80,
+      PAYMENT_CHECK_INTERVAL_MS: 30000,
+      PAYMENT_MIN_CONFIRMATIONS: 1,
     },
     logger,
     rpc,

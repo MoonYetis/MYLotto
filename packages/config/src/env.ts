@@ -21,15 +21,13 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
 
-  // --- XPUB BIP86 (para derivar direcciones de boletos, nivel m/86'/0'/0') ---
-  // Opcional en desarrollo; el Ciclo 4 lo hará required cuando el backend lo use.
+  // --- XPUB BIP86 (OBLIGATORIO desde Ciclo 4 — derivación de direcciones de boleto) ---
   XPUB_BIP86: z
     .string()
     .min(1)
     .refine((s) => s.startsWith("xpub"), {
       message: "XPUB_BIP86 debe empezar con 'xpub' (mainnet BIP86)",
-    })
-    .optional(),
+    }),
 
   // --- UniSat BRC-20 API (para descuento Hold-to-Earn Moonyetis) ---
   UNISAT_BASE_URL: z
@@ -41,6 +39,14 @@ const envSchema = z.object({
 
   // --- Ticker BRC-20 para Hold-to-Earn ---
   BRC20_TICKER: z.string().min(1).default("Moonyetis"),
+
+  // --- Precios de boleto (Hold-to-Earn) ---
+  TICKET_PRICE_FB: z.coerce.number().positive().default(100),
+  TICKET_DISCOUNT_PRICE_FB: z.coerce.number().positive().default(80),
+
+  // --- Worker de verificación de pagos ---
+  PAYMENT_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(30000),
+  PAYMENT_MIN_CONFIRMATIONS: z.coerce.number().int().min(0).default(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

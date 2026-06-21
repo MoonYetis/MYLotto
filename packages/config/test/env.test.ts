@@ -12,6 +12,8 @@ describe("loadEnv", () => {
     PORT: "3000",
     LOG_LEVEL: "info",
     UNISAT_API_KEY: "sk-test-123",
+    XPUB_BIP86:
+      "xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ",
   } as const;
 
   it("acepta un env completo y válido", () => {
@@ -94,5 +96,41 @@ describe("loadEnv", () => {
 
   it("lanza si UNISAT_API_KEY está vacío", () => {
     expect(() => loadEnv({ ...valid, UNISAT_API_KEY: "" })).toThrow();
+  });
+
+  it("acepta TICKET_PRICE_FB y TICKET_DISCOUNT_PRICE_FB", () => {
+    const env = loadEnv({
+      ...valid,
+      TICKET_PRICE_FB: "100",
+      TICKET_DISCOUNT_PRICE_FB: "80",
+    });
+    expect(env.TICKET_PRICE_FB).toBe(100);
+    expect(env.TICKET_DISCOUNT_PRICE_FB).toBe(80);
+  });
+
+  it("aplica defaults de precios y worker", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.TICKET_PRICE_FB).toBe(100);
+    expect(env.TICKET_DISCOUNT_PRICE_FB).toBe(80);
+    expect(env.PAYMENT_CHECK_INTERVAL_MS).toBe(30000);
+    expect(env.PAYMENT_MIN_CONFIRMATIONS).toBe(1);
+  });
+
+  it("acepta PAYMENT_CHECK_INTERVAL_MS y PAYMENT_MIN_CONFIRMATIONS custom", () => {
+    const env = loadEnv({
+      ...valid,
+      PAYMENT_CHECK_INTERVAL_MS: "5000",
+      PAYMENT_MIN_CONFIRMATIONS: "3",
+    });
+    expect(env.PAYMENT_CHECK_INTERVAL_MS).toBe(5000);
+    expect(env.PAYMENT_MIN_CONFIRMATIONS).toBe(3);
+  });
+
+  it("XPUB_BIP86 ahora es required (lanza si falta)", () => {
+    expect(() => {
+      const { XPUB_BIP86, ...sinXpub } = valid;
+      void XPUB_BIP86;
+      loadEnv(sinXpub);
+    }).toThrow();
   });
 });

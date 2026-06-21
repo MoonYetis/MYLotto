@@ -5,6 +5,8 @@ import type { AppDeps } from "../src/dependencies.js";
 import type { Logger } from "@myloto/config";
 import type { DbHandle } from "@myloto/db";
 import type { FractalRpcClient } from "@myloto/rpc-client";
+import type { HdWallet } from "@myloto/crypto";
+import type { UnisatClient } from "@myloto/brc20";
 
 function mockDeps(
   overrides: Partial<{ rpc: FractalRpcClient; db: DbHandle }> = {},
@@ -59,6 +61,8 @@ function mockDeps(
     logger,
     rpc,
     db,
+    wallet: { deriveAddress: vi.fn() } as unknown as HdWallet,
+    unisat: { getBrc20Balance: vi.fn() } as unknown as UnisatClient,
   };
 }
 

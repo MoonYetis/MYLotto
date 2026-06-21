@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "worker:payments": "tsx src/workers/payment-verifier.ts"
   },
   "dependencies": {
     "@myloto/brc20": "workspace:*",

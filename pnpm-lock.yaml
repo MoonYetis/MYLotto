@@ -10,18 +10,30 @@ importers:
 
   apps/backend:
     dependencies:
+      '@myloto/brc20':
+        specifier: workspace:*
+        version: link:../../packages/brc20
       '@myloto/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@myloto/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
       '@myloto/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@myloto/payments':
+        specifier: workspace:*
+        version: link:../../packages/payments
       '@myloto/rpc-client':
         specifier: workspace:*
         version: link:../../packages/rpc-client
       '@myloto/types':
         specifier: workspace:*
         version: link:../../packages/types
+      drizzle-orm:
+        specifier: ^0.35.0
+        version: 0.35.3(@libsql/client-wasm@0.17.4)(@types/pg@8.20.0)(pg@8.21.0)
       fastify:
         specifier: ^5.0.0
         version: 5.8.5

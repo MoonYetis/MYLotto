@@ -47,6 +47,10 @@ const envSchema = z.object({
   // --- Worker de verificación de pagos ---
   PAYMENT_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(30000),
   PAYMENT_MIN_CONFIRMATIONS: z.coerce.number().int().min(0).default(1),
+
+  // --- Wallet del nodo para getreceivedbyaddress (multi-wallet watch-only) ---
+  // Vacío = wallet por defecto. "myloto_watchonly" = wallet observador con la XPUB.
+  FRACTAL_RPC_WALLET: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

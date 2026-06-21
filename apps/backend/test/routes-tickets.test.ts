@@ -69,6 +69,7 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       TICKET_DISCOUNT_PRICE_FB: 80,
       PAYMENT_CHECK_INTERVAL_MS: 30000,
       PAYMENT_MIN_CONFIRMATIONS: 1,
+      FRACTAL_RPC_WALLET: "",
     },
     logger,
     db,

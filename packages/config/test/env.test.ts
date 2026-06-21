@@ -133,4 +133,17 @@ describe("loadEnv", () => {
       loadEnv(sinXpub);
     }).toThrow();
   });
+
+  it("acepta FRACTAL_RPC_WALLET (wallet para getreceivedbyaddress)", () => {
+    const env = loadEnv({
+      ...valid,
+      FRACTAL_RPC_WALLET: "myloto_watchonly",
+    });
+    expect(env.FRACTAL_RPC_WALLET).toBe("myloto_watchonly");
+  });
+
+  it("FRACTAL_RPC_WALLET por defecto es string vacío (wallet por defecto)", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.FRACTAL_RPC_WALLET).toBe("");
+  });
 });

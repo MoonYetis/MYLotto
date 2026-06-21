@@ -1,6 +1,10 @@
 import { buildDeps } from "../dependencies.js";
 import { getPendingTickets, markActive } from "../services/tickets.js";
 import { verifyPayment } from "@myloto/payments";
+import {
+  FractalRpcClient,
+  FractalTransport,
+} from "@myloto/rpc-client";
 import type { Logger } from "@myloto/config";
 import { fileURLToPath } from "node:url";
 
@@ -86,17 +90,36 @@ export function runLoop(deps: WorkerDeps, intervalMs: number): void {
 
 async function main(): Promise<void> {
   const deps = buildDeps();
+
+  // El worker necesita su propio cliente RPC apuntando al wallet watch-only
+  // (donde está importado el descriptor de la XPUB). Si FRACTAL_RPC_WALLET
+  // está vacío, se usa el wallet por defecto del nodo.
+  const walletName = deps.env.FRACTAL_RPC_WALLET;
+  const rpc =
+    walletName === ""
+      ? deps.rpc
+      : new FractalRpcClient(
+          new FractalTransport({
+            url: deps.env.FRACTAL_RPC_URL,
+            username: deps.env.FRACTAL_RPC_USER,
+            password: deps.env.FRACTAL_RPC_PASSWORD,
+            timeoutMs: deps.env.FRACTAL_RPC_TIMEOUT_MS,
+            walletName,
+            logger: deps.logger,
+          }),
+        );
+
   const workerDeps: WorkerDeps = {
     getPendingTickets: () => getPendingTickets(deps.db.db),
     markActive: (id) => markActive(deps.db.db, id),
-    getReceived: (addr, minconf) =>
-      deps.rpc.getReceivedByAddress(addr, minconf),
+    getReceived: (addr, minconf) => rpc.getReceivedByAddress(addr, minconf),
     logger: deps.logger,
     minconf: deps.env.PAYMENT_MIN_CONFIRMATIONS,
   };
   deps.logger.info("arrancando worker de verificación de pagos", {
     intervalMs: deps.env.PAYMENT_CHECK_INTERVAL_MS,
     minconf: deps.env.PAYMENT_MIN_CONFIRMATIONS,
+    wallet: walletName === "" ? "(default)" : walletName,
   });
   runLoop(workerDeps, deps.env.PAYMENT_CHECK_INTERVAL_MS);
 }

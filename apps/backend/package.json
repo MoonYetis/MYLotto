@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "worker:payments": "tsx src/workers/payment-verifier.ts",
     "worker:draw": "tsx src/workers/draw-verifier.ts",
-    "worker:scrutiny": "tsx src/workers/scrutiny-verifier.ts"
+    "worker:scrutiny": "tsx src/workers/scrutiny-verifier.ts",
+    "worker:lifecycle": "tsx src/workers/lifecycle-verifier.ts"
   },
   "dependencies": {
     "@myloto/brc20": "workspace:*",

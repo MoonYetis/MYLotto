@@ -28,3 +28,4 @@ drizzle/meta/
 
 # Test artifacts
 coverage/
+.superpowers/

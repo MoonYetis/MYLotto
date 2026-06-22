@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import { buildDeps } from "./dependencies.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerTicketRoutes } from "./routes/tickets.js";
+import { registerSorteoRoutes } from "./routes/sorteos.js";
 
 async function main(): Promise<void> {
   const deps = buildDeps();
@@ -22,6 +23,7 @@ async function main(): Promise<void> {
 
   registerHealthRoutes(app, deps);
   registerTicketRoutes(app, deps);
+  registerSorteoRoutes(app, deps);
 
   const shutdown = async (signal: string): Promise<void> => {
     deps.logger.info("shutting down", { signal });

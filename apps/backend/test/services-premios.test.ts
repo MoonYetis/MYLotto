@@ -48,7 +48,7 @@ describe("services/premios", () => {
 
   it("countActiveTickets devuelve número", async () => {
     const db = mockDb({
-      selectWhere: vi.fn().mockResolvedValue([{ count: 42n }]),
+      selectWhere: vi.fn().mockResolvedValue([{ c: 42n }]),
     });
     expect(await countActiveTickets(db, 1)).toBe(42);
   });
@@ -56,7 +56,7 @@ describe("services/premios", () => {
   it("insertGanadores llama a insert batch", async () => {
     const db = mockDb();
     const ganadores = [
-      { sorteoId: 1, ticketId: 1, tier: 1, monto: "680" },
+      { sorteoId: 1n, ticketId: 1n, tier: 1, monto: "680" },
     ];
     await expect(insertGanadores(db, ganadores)).resolves.toBeUndefined();
   });

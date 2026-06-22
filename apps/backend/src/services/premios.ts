@@ -14,8 +14,7 @@ export async function getJackpotBalance(db: Database): Promise<number> {
   const rows = await db
     .select({ saldo: jackpotPool.saldo })
     .from(jackpotPool)
-    .where(eq(jackpotPool.id, 1))
-    .limit(1);
+    .where(eq(jackpotPool.id, 1));
   const saldo = rows[0]?.saldo ?? "0";
   return Number(saldo);
 }

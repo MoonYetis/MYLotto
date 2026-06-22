@@ -31,6 +31,9 @@ importers:
       '@myloto/rpc-client':
         specifier: workspace:*
         version: link:../../packages/rpc-client
+      '@myloto/scrutiny':
+        specifier: workspace:*
+        version: link:../../packages/scrutiny
       '@myloto/types':
         specifier: workspace:*
         version: link:../../packages/types

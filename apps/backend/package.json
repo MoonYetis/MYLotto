@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "worker:payments": "tsx src/workers/payment-verifier.ts",
-    "worker:draw": "tsx src/workers/draw-verifier.ts"
+    "worker:draw": "tsx src/workers/draw-verifier.ts",
+    "worker:scrutiny": "tsx src/workers/scrutiny-verifier.ts"
   },
   "dependencies": {
     "@myloto/brc20": "workspace:*",
@@ -23,6 +24,7 @@
     "@myloto/payments": "workspace:*",
     "@myloto/randomness": "workspace:*",
     "@myloto/rpc-client": "workspace:*",
+    "@myloto/scrutiny": "workspace:*",
     "@myloto/types": "workspace:*",
     "drizzle-orm": "^0.35.0",
     "fastify": "^5.0.0",

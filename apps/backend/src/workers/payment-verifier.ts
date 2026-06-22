@@ -88,12 +88,9 @@ export function runLoop(deps: WorkerDeps, intervalMs: number): void {
   tick();
 }
 
-async function main(): Promise<void> {
-  const deps = buildDeps();
-
-  // El worker necesita su propio cliente RPC apuntando al wallet watch-only
-  // (donde está importado el descriptor de la XPUB). Si FRACTAL_RPC_WALLET
-  // está vacío, se usa el wallet por defecto del nodo.
+export function buildWorkerDeps(
+  deps: ReturnType<typeof buildDeps>,
+): WorkerDeps {
   const walletName = deps.env.FRACTAL_RPC_WALLET;
   const rpc =
     walletName === ""
@@ -109,17 +106,22 @@ async function main(): Promise<void> {
           }),
         );
 
-  const workerDeps: WorkerDeps = {
+  return {
     getPendingTickets: () => getPendingTickets(deps.db.db),
     markActive: (id) => markActive(deps.db.db, id),
     getReceived: (addr, minconf) => rpc.getReceivedByAddress(addr, minconf),
     logger: deps.logger,
     minconf: deps.env.PAYMENT_MIN_CONFIRMATIONS,
   };
+}
+
+async function main(): Promise<void> {
+  const deps = buildDeps();
+  const workerDeps = buildWorkerDeps(deps);
   deps.logger.info("arrancando worker de verificación de pagos", {
     intervalMs: deps.env.PAYMENT_CHECK_INTERVAL_MS,
     minconf: deps.env.PAYMENT_MIN_CONFIRMATIONS,
-    wallet: walletName === "" ? "(default)" : walletName,
+    wallet: deps.env.FRACTAL_RPC_WALLET === "" ? "(default)" : deps.env.FRACTAL_RPC_WALLET,
   });
   runLoop(workerDeps, deps.env.PAYMENT_CHECK_INTERVAL_MS);
 }

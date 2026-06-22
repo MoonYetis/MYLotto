@@ -152,9 +152,10 @@ export function runLoop(deps: ScrutinyWorkerDeps, intervalMs: number): void {
   tick();
 }
 
-async function main(): Promise<void> {
-  const deps = buildDeps();
-  const workerDeps: ScrutinyWorkerDeps = {
+export function buildScrutinyDeps(
+  deps: ReturnType<typeof buildDeps>,
+): ScrutinyWorkerDeps {
+  return {
     getCalculatedSorteos: () => getCalculatedSorteos(deps.db.db),
     countActiveTickets: (id) => countActiveTickets(deps.db.db, id),
     getActiveTickets: (id) => getActiveTickets(deps.db.db, id),
@@ -165,6 +166,11 @@ async function main(): Promise<void> {
     ticketPrice: deps.env.TICKET_PRICE_FB,
     logger: deps.logger,
   };
+}
+
+async function main(): Promise<void> {
+  const deps = buildDeps();
+  const workerDeps = buildScrutinyDeps(deps);
   deps.logger.info("arrancando scrutiny-verifier", {
     intervalMs: deps.env.SCRUTINY_CHECK_INTERVAL_MS,
   });

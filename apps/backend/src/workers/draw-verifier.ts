@@ -91,9 +91,10 @@ export function runLoop(deps: DrawWorkerDeps, intervalMs: number): void {
   tick();
 }
 
-async function main(): Promise<void> {
-  const deps = buildDeps();
-  const workerDeps: DrawWorkerDeps = {
+export function buildDrawDeps(
+  deps: ReturnType<typeof buildDeps>,
+): DrawWorkerDeps {
+  return {
     getBlockCount: () => deps.rpc.getBlockCount(),
     getReadySorteos: (height) => getClosedSorteosReady(deps.db.db, height),
     getBlockHash: (height) => deps.rpc.getBlockHash(height),
@@ -102,6 +103,11 @@ async function main(): Promise<void> {
     markCalculated: (id) => markCalculated(deps.db.db, id),
     logger: deps.logger,
   };
+}
+
+async function main(): Promise<void> {
+  const deps = buildDeps();
+  const workerDeps = buildDrawDeps(deps);
   deps.logger.info("arrancando draw-verifier", {
     intervalMs: deps.env.DRAW_CHECK_INTERVAL_MS,
   });

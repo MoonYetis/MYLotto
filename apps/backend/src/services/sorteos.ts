@@ -64,7 +64,7 @@ export async function createSorteo(
   const [row] = await db
     .insert(sorteos)
     .values({
-      bloqueCierre: BigInt(bloqueCierre),
+      bloqueCierre,
       estado: "ABIERTO",
     })
     .returning();
@@ -132,7 +132,7 @@ export async function cerrarVencidos(
     .where(
       and(
         eq(sorteos.estado, "ABIERTO"),
-        lte(sorteos.bloqueCierre, BigInt(currentHeight)),
+        lte(sorteos.bloqueCierre, currentHeight),
       ),
     )
     .returning({ id: sorteos.id });

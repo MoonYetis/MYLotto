@@ -166,4 +166,24 @@ describe("loadEnv", () => {
     const env = loadEnv({ ...valid });
     expect(env.SCRUTINY_CHECK_INTERVAL_MS).toBe(60000);
   });
+
+  it("acepta DURACION_SORTEO_BLOQUES custom", () => {
+    const env = loadEnv({ ...valid, DURACION_SORTEO_BLOQUES: "288" });
+    expect(env.DURACION_SORTEO_BLOQUES).toBe(288);
+  });
+
+  it("aplica default DURACION_SORTEO_BLOQUES = 144", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.DURACION_SORTEO_BLOQUES).toBe(144);
+  });
+
+  it("acepta LIFECYCLE_CHECK_INTERVAL_MS custom", () => {
+    const env = loadEnv({ ...valid, LIFECYCLE_CHECK_INTERVAL_MS: "30000" });
+    expect(env.LIFECYCLE_CHECK_INTERVAL_MS).toBe(30000);
+  });
+
+  it("aplica default LIFECYCLE_CHECK_INTERVAL_MS = 60000", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.LIFECYCLE_CHECK_INTERVAL_MS).toBe(60000);
+  });
 });

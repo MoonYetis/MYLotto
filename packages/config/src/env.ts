@@ -57,6 +57,10 @@ const envSchema = z.object({
 
   // --- Worker de escrutinio (Ciclo 6) ---
   SCRUTINY_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(60000),
+
+  // --- Gestión de sorteos (Ciclo 7) ---
+  DURACION_SORTEO_BLOQUES: z.coerce.number().int().positive().default(144),
+  LIFECYCLE_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(60000),
 });
 
 export type Env = z.infer<typeof envSchema>;

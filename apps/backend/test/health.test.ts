@@ -60,6 +60,8 @@ function mockDeps(
       FRACTAL_RPC_WALLET: "",
       DRAW_CHECK_INTERVAL_MS: 30000,
       SCRUTINY_CHECK_INTERVAL_MS: 60000,
+      DURACION_SORTEO_BLOQUES: 144,
+      LIFECYCLE_CHECK_INTERVAL_MS: 60000,
     },
     logger,
     rpc,

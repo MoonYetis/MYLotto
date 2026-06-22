@@ -4,13 +4,23 @@ import {
   getClosedSorteosReady,
   saveSorteoResult,
   markCalculated,
+  createSorteo,
+  getSorteoById,
+  getSorteoAbierto,
+  getGanadores,
+  cerrarVencidos,
+  markPagado,
 } from "../src/services/sorteos.js";
 import type { CombinacionGanadora, BloquesSemilla } from "@myloto/types";
 
-function mockDb(overrides: Partial<{
-  selectWhere: ReturnType<typeof vi.fn>;
-  updateSetWhere: ReturnType<typeof vi.fn>;
-}> = {}): Database {
+function mockDb(
+  overrides: Partial<{
+    selectWhere: ReturnType<typeof vi.fn>;
+    updateSetWhere: ReturnType<typeof vi.fn>;
+    insertValuesReturning: ReturnType<typeof vi.fn>;
+    updateReturning: ReturnType<typeof vi.fn>;
+  }> = {},
+): Database {
   return {
     select: vi.fn().mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -20,6 +30,13 @@ function mockDb(overrides: Partial<{
     update: vi.fn().mockReturnValue({
       set: vi.fn().mockReturnValue({
         where: overrides.updateSetWhere ?? vi.fn().mockResolvedValue(undefined),
+        returning: overrides.updateReturning ?? vi.fn().mockResolvedValue([]),
+      }),
+    }),
+    insert: vi.fn().mockReturnValue({
+      values: vi.fn().mockReturnValue({
+        returning:
+          overrides.insertValuesReturning ?? vi.fn().mockResolvedValue([{ id: 1 }]),
       }),
     }),
   } as unknown as Database;
@@ -52,5 +69,60 @@ describe("services/sorteos", () => {
   it("markCalculated llama a update sin lanzar", async () => {
     const db = mockDb();
     await expect(markCalculated(db, 1)).resolves.toBeUndefined();
+  });
+
+  it("createSorteo inserta con estado ABIERTO", async () => {
+    const db = mockDb({
+      insertValuesReturning: vi.fn().mockResolvedValue([
+        { id: 1, bloqueCierre: 200, estado: "ABIERTO" },
+      ]),
+    });
+    const result = await createSorteo(db, 200);
+    expect(result.id).toBe(1);
+    expect(result.estado).toBe("ABIERTO");
+  });
+
+  it("getSorteoById devuelve la fila o null", async () => {
+    const db = mockDb({
+      selectWhere: vi.fn().mockResolvedValue([{ id: 5, estado: "ABIERTO" }]),
+    });
+    expect((await getSorteoById(db, 5))?.id).toBe(5);
+  });
+
+  it("getSorteoAbierto devuelve el único ABIERTO", async () => {
+    const db = mockDb({
+      selectWhere: vi.fn().mockResolvedValue([
+        { id: 1, estado: "ABIERTO", bloqueCierre: 200 },
+      ]),
+    });
+    const result = await getSorteoAbierto(db);
+    expect(result?.id).toBe(1);
+  });
+
+  it("getGanadores devuelve lista de ganadores", async () => {
+    const db = mockDb({
+      selectWhere: vi.fn().mockResolvedValue([
+        { id: 1n, ticketId: 10n, tier: 1, monto: "680", pagado: false },
+      ]),
+    });
+    const result = await getGanadores(db, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0]?.tier).toBe(1);
+  });
+
+  it("cerrarVencidos devuelve cuántos cerró", async () => {
+    const db = mockDb({
+      updateReturning: vi.fn().mockResolvedValue([{ id: 1 }, { id: 2 }]),
+    });
+    const result = await cerrarVencidos(db, 200);
+    expect(result).toBe(2);
+  });
+
+  it("markPagado actualiza pagado=true", async () => {
+    const db = mockDb({
+      updateReturning: vi.fn().mockResolvedValue([{ id: 1 }]),
+    });
+    const result = await markPagado(db, 1);
+    expect(result).toBe(true);
   });
 });

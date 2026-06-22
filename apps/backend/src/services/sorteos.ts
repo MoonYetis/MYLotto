@@ -1,5 +1,10 @@
 import { eq, and, lte } from "drizzle-orm";
-import { sorteos, type Database, type Sorteo } from "@myloto/db";
+import {
+  sorteos,
+  ganadores,
+  type Database,
+  type Sorteo,
+} from "@myloto/db";
 import type { CombinacionGanadora, BloquesSemilla } from "@myloto/types";
 
 /**
@@ -49,4 +54,100 @@ export async function markCalculated(
     .update(sorteos)
     .set({ estado: "CALCULADO" })
     .where(and(eq(sorteos.id, BigInt(sorteoId)), eq(sorteos.estado, "CERRADO")));
+}
+
+/** Crea un nuevo sorteo con estado ABIERTO. */
+export async function createSorteo(
+  db: Database,
+  bloqueCierre: number,
+): Promise<Sorteo> {
+  const [row] = await db
+    .insert(sorteos)
+    .values({
+      bloqueCierre: BigInt(bloqueCierre),
+      estado: "ABIERTO",
+    })
+    .returning();
+  if (!row) throw new Error("createSorteo: INSERT no devolvió fila");
+  return row;
+}
+
+/** Devuelve un sorteo por id completo. */
+export async function getSorteoById(
+  db: Database,
+  id: number,
+): Promise<Sorteo | null> {
+  const rows = await db
+    .select()
+    .from(sorteos)
+    .where(eq(sorteos.id, BigInt(id)))
+    .limit(1);
+  return (rows[0] as Sorteo | undefined) ?? null;
+}
+
+/** Devuelve el sorteo ABIERTO único, o null. */
+export async function getSorteoAbierto(db: Database): Promise<Sorteo | null> {
+  const rows = await db
+    .select()
+    .from(sorteos)
+    .where(eq(sorteos.estado, "ABIERTO"))
+    .limit(1);
+  return (rows[0] as Sorteo | undefined) ?? null;
+}
+
+/** Devuelve los ganadores de un sorteo. */
+export async function getGanadores(
+  db: Database,
+  sorteoId: number,
+): Promise<
+  Array<{
+    id: bigint;
+    ticketId: bigint;
+    tier: number;
+    monto: string;
+    pagado: boolean;
+  }>
+> {
+  const rows = await db
+    .select({
+      id: ganadores.id,
+      ticketId: ganadores.ticketId,
+      tier: ganadores.tier,
+      monto: ganadores.monto,
+      pagado: ganadores.pagado,
+    })
+    .from(ganadores)
+    .where(eq(ganadores.sorteoId, BigInt(sorteoId)));
+  return rows;
+}
+
+/** Cierra sorteos ABIERTO cuyo bloque_cierre <= currentHeight. Devuelve cuántos cerró. */
+export async function cerrarVencidos(
+  db: Database,
+  currentHeight: number,
+): Promise<number> {
+  const rows = await db
+    .update(sorteos)
+    .set({ estado: "CERRADO", cerradoEn: new Date() })
+    .where(
+      and(
+        eq(sorteos.estado, "ABIERTO"),
+        lte(sorteos.bloqueCierre, BigInt(currentHeight)),
+      ),
+    )
+    .returning({ id: sorteos.id });
+  return rows.length;
+}
+
+/** Marca un ganador como pagado. Devuelve true si actualizó, false si no existía. */
+export async function markPagado(
+  db: Database,
+  ganadorId: number,
+): Promise<boolean> {
+  const rows = await db
+    .update(ganadores)
+    .set({ pagado: true })
+    .where(eq(ganadores.id, BigInt(ganadorId)))
+    .returning({ id: ganadores.id });
+  return rows.length > 0;
 }

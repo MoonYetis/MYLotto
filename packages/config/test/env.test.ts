@@ -42,8 +42,9 @@ describe("loadEnv", () => {
     expect(() => loadEnv({ ...valid, FRACTAL_RPC_PASSWORD: undefined })).toThrow();
   });
 
-  it("lanza si FRACTAL_RPC_URL no es IP Tailscale (no empieza con http://100.)", () => {
-    expect(() => loadEnv({ ...valid, FRACTAL_RPC_URL: "http://192.168.1.1:8332" })).toThrow();
+  it("acepta FRACTAL_RPC_URL localhost o IP cualquier red", () => {
+    expect(() => loadEnv({ ...valid, FRACTAL_RPC_URL: "http://127.0.0.1:8332" })).not.toThrow();
+    expect(() => loadEnv({ ...valid, FRACTAL_RPC_URL: "http://192.168.1.1:8332" })).not.toThrow();
   });
 
   it("lanza si DATABASE_URL no es URL válida", () => {

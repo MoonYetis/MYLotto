@@ -3,13 +3,8 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
-  // --- Nodo Fractal RPC (Tailscale) ---
-  FRACTAL_RPC_URL: z
-    .string()
-    .url()
-    .refine((u) => /^http:\/\/100\./.test(u), {
-      message: "FRACTAL_RPC_URL debe ser http://100.x.x.x:8332 (IP Tailscale)",
-    }),
+  // --- Nodo Fractal RPC ---
+  FRACTAL_RPC_URL: z.string().url(),
   FRACTAL_RPC_USER: z.string().min(1),
   FRACTAL_RPC_PASSWORD: z.string().min(1),
   FRACTAL_RPC_TIMEOUT_MS: z.coerce.number().int().positive().default(15000),

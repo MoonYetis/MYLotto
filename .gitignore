@@ -29,3 +29,9 @@ drizzle/meta/
 # Test artifacts
 coverage/
 .superpowers/
+
+# Next.js build
+.next/
+next-env.d.ts
+out/
+

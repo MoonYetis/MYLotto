@@ -36,8 +36,13 @@ const envSchema = z.object({
   BRC20_TICKER: z.string().min(1).default("Moonyetis"),
 
   // --- Precios de boleto (Hold-to-Earn) ---
-  TICKET_PRICE_FB: z.coerce.number().positive().default(100),
-  TICKET_DISCOUNT_PRICE_FB: z.coerce.number().positive().default(80),
+  TICKET_PRICE_FB: z.coerce.number().positive().default(1),
+  TICKET_DISCOUNT_PRICE_FB: z.coerce.number().positive().default(0.8),
+
+  // --- Jackpot base garantizado (Ciclo 6) ---
+  // Monto mínimo del jackpot mostrado al jugador, independiente de las ventas.
+  // El operador fondea este monto con FB desde su wallet.
+  JACKPOT_BASE_FB: z.coerce.number().min(0).default(1000),
 
   // --- Worker de verificación de pagos ---
   PAYMENT_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(30000),

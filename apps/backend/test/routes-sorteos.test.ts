@@ -68,8 +68,9 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       BRC20_TICKER: "Moonyetis",
       XPUB_BIP86:
         "xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ",
-      TICKET_PRICE_FB: 100,
-      TICKET_DISCOUNT_PRICE_FB: 80,
+      TICKET_PRICE_FB: 1,
+      TICKET_DISCOUNT_PRICE_FB: 0.8,
+      JACKPOT_BASE_FB: 1000,
       PAYMENT_CHECK_INTERVAL_MS: 30000,
       PAYMENT_MIN_CONFIRMATIONS: 1,
       FRACTAL_RPC_WALLET: "",
@@ -187,7 +188,11 @@ describe("GET /jackpot", () => {
     const app = await buildApp(mockDeps({ db }));
     const res = await app.inject({ method: "GET", url: "/jackpot" });
     expect(res.statusCode).toBe(200);
-    expect(JSON.parse(res.body).saldo).toBe(1500);
+    // saldo = JACKPOT_BASE_FB (1000) + acumulado (1500) = 2500
+    const body = JSON.parse(res.body);
+    expect(body.saldo).toBe(2500);
+    expect(body.base).toBe(1000);
+    expect(body.acumulado).toBe(1500);
     await app.close();
   });
 });

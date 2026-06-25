@@ -76,10 +76,11 @@ export function registerSorteoRoutes(
     }));
   });
 
-  // GET /jackpot — Saldo del jackpot acumulado
+  // GET /jackpot — Jackpot total (base garantizado + acumulado)
   app.get("/jackpot", async (_req, _reply) => {
-    const saldo = await getJackpotBalance(deps.db.db);
-    return { saldo };
+    const acumulado = await getJackpotBalance(deps.db.db);
+    const total = deps.env.JACKPOT_BASE_FB + acumulado;
+    return { saldo: total, base: deps.env.JACKPOT_BASE_FB, acumulado };
   });
 
   // POST /admin/ganadores/:id/pagar — Marcar premio pagado

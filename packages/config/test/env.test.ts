@@ -68,6 +68,16 @@ describe("loadEnv", () => {
     expect(env.XPUB_BIP86).toMatch(/^xpub/);
   });
 
+  it("aplica default JACKPOT_BASE_FB = 1000", () => {
+    const env = loadEnv({ ...valid });
+    expect(env.JACKPOT_BASE_FB).toBe(1000);
+  });
+
+  it("acepta JACKPOT_BASE_FB custom", () => {
+    const env = loadEnv({ ...valid, JACKPOT_BASE_FB: "5000" });
+    expect(env.JACKPOT_BASE_FB).toBe(5000);
+  });
+
   it("lanza si XPUB_BIP86 no empieza con xpub", () => {
     expect(() => loadEnv({ ...valid, XPUB_BIP86: "tpub6CPIbm..." })).toThrow();
   });
@@ -102,17 +112,17 @@ describe("loadEnv", () => {
   it("acepta TICKET_PRICE_FB y TICKET_DISCOUNT_PRICE_FB", () => {
     const env = loadEnv({
       ...valid,
-      TICKET_PRICE_FB: "100",
-      TICKET_DISCOUNT_PRICE_FB: "80",
+      TICKET_PRICE_FB: "1",
+      TICKET_DISCOUNT_PRICE_FB: "0.80",
     });
-    expect(env.TICKET_PRICE_FB).toBe(100);
-    expect(env.TICKET_DISCOUNT_PRICE_FB).toBe(80);
+    expect(env.TICKET_PRICE_FB).toBe(1);
+    expect(env.TICKET_DISCOUNT_PRICE_FB).toBe(0.8);
   });
 
   it("aplica defaults de precios y worker", () => {
     const env = loadEnv({ ...valid });
-    expect(env.TICKET_PRICE_FB).toBe(100);
-    expect(env.TICKET_DISCOUNT_PRICE_FB).toBe(80);
+    expect(env.TICKET_PRICE_FB).toBe(1);
+    expect(env.TICKET_DISCOUNT_PRICE_FB).toBe(0.8);
     expect(env.PAYMENT_CHECK_INTERVAL_MS).toBe(30000);
     expect(env.PAYMENT_MIN_CONFIRMATIONS).toBe(1);
   });

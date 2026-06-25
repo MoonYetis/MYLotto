@@ -37,7 +37,7 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
               id: 1,
               sorteoId: 1,
               status: "PENDIENTE",
-              expectedAmount: "100",
+              expectedAmount: "1",
               paymentAddress: "PLACEHOLDER",
             },
           ]),
@@ -65,8 +65,9 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       BRC20_TICKER: "Moonyetis",
       XPUB_BIP86:
         "xpub6BgBgsespWvERF3LHQu6CnqdvfEvtMcQjYrcRzx53QJjSxarj2afYWcLteoGVky7D3UKDP9QyrLprQ3VCECoY49yfdDEHGCtMMj92pReUsQ",
-      TICKET_PRICE_FB: 100,
-      TICKET_DISCOUNT_PRICE_FB: 80,
+      TICKET_PRICE_FB: 1,
+      TICKET_DISCOUNT_PRICE_FB: 0.8,
+      JACKPOT_BASE_FB: 1000,
       PAYMENT_CHECK_INTERVAL_MS: 30000,
       PAYMENT_MIN_CONFIRMATIONS: 1,
       FRACTAL_RPC_WALLET: "",
@@ -115,7 +116,7 @@ describe("POST /tickets", () => {
     const body = JSON.parse(res.body);
     expect(body.id).toBe(1);
     expect(body.status).toBe("PENDIENTE");
-    expect(body.expectedAmount).toBe(100);
+    expect(body.expectedAmount).toBe(1);
     expect(body.paymentAddress).toBe(VALID_TAPROOT_ADDR);
     expect(body.bip21Uri).toContain(VALID_TAPROOT_ADDR);
     expect(body.qrSvg).toContain("<svg");
@@ -180,7 +181,7 @@ describe("GET /tickets/:id", () => {
                   id: 7,
                   sorteoId: 1,
                   status: "ACTIVO",
-                  expectedAmount: "100",
+                  expectedAmount: "1",
                   paymentAddress: "bc1q...",
                   n1: 1,
                   n2: 2,

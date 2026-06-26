@@ -13,7 +13,7 @@ export function NumberGrid({
   const full = selected.length >= BALOTAS_TO_SELECT;
 
   return (
-    <div className="grid grid-cols-7 sm:grid-cols-10 gap-2">
+    <div className="grid grid-cols-7 sm:grid-cols-9 gap-2">
       {numbers.map((n) => {
         const isSelected = selected.includes(n);
         const disabled = !isSelected && full;
@@ -22,10 +22,10 @@ export function NumberGrid({
             key={n}
             disabled={disabled}
             onClick={() => onToggle(n)}
-            className={`w-8 h-8 rounded-full text-xs font-bold transition-all flex items-center justify-center
+            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all flex items-center justify-center
               ${isSelected
-                ? "bg-gold text-background"
-                : "bg-background-card text-muted-light hover:bg-border"}
+                ? "bg-balota-pink text-white border-2 border-neon-pink shadow-[0_0_10px_rgba(236,72,153,0.5)]"
+                : "bg-background-card text-muted-light border border-border hover:border-neon-cyan"}
               ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
           >
             {n}

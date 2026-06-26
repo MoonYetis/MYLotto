@@ -20,8 +20,8 @@ export function PowerballGrid({
             onClick={() => onSelect(n)}
             className={`w-8 h-8 rounded-full text-xs font-bold transition-all flex items-center justify-center
               ${isSelected
-                ? "bg-red text-white"
-                : "bg-background-card text-muted-light hover:bg-border"}`}
+                ? "bg-balota-yellow text-background border-2 border-neon-yellow shadow-[0_0_10px_rgba(250,204,21,0.6)]"
+                : "bg-background-card text-muted-light border border-border hover:border-neon-yellow"}`}
           >
             {n}
           </button>

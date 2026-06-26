@@ -65,15 +65,19 @@ export interface TicketInput {
 // --- Funciones fetch ---
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  // Solo declaramos Content-Type: application/json cuando hay body.
-  // Si lo enviamos en un POST vacío, Fastify rechaza con
-  // FST_ERR_CTP_EMPTY_JSON_BODY ("Body cannot be empty when content-type
-  // is set to application/json"). GET y POST sin body no lo necesitan.
+  // Aseguramos un body válido para POST/PUT/PATCH: Fastify rechaza peticiones
+  // con Content-Type: application/json pero body vacío (FST_ERR_CTP_EMPTY_JSON_BODY)
+  // y también POST sin content-type (FST_ERR_CTP_INVALID_MEDIA_TYPE).
+  // Para verbos con body enviamos al menos "{}" con el Content-Type correcto.
+  const method = init?.method?.toUpperCase();
+  const hasBodyVerb = method === "POST" || method === "PUT" || method === "PATCH";
   const res = await fetch(`${BACKEND_URL}${path}`, {
     ...init,
-    headers: init?.body
-      ? { "Content-Type": "application/json", ...init.headers }
-      : init?.headers,
+    body: init?.body ?? (hasBodyVerb ? "{}" : undefined),
+    headers:
+      init?.body || hasBodyVerb
+        ? { "Content-Type": "application/json", ...init?.headers }
+        : init?.headers,
   });
   if (!res.ok) {
     throw new Error(`API ${res.status}: ${await res.text()}`);

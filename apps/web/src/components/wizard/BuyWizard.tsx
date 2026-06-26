@@ -9,6 +9,7 @@ import { NumberGrid } from "./NumberGrid";
 import { PowerballGrid } from "./PowerballGrid";
 import { useCreateTicket, useTicketStatus, useSorteoActivo } from "@/lib/hooks";
 import { BALOTAS_TO_SELECT, BALOTAS_MAX, POWERBALL_MAX } from "@/lib/constants";
+import { fireConfetti } from "@/lib/confetti";
 import type { TicketResponse } from "@/lib/api";
 
 type Step = "seleccion" | "descuento" | "pago" | "confirmacion";
@@ -29,6 +30,7 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (ticketStatus.data?.status === "ACTIVO" && step === "pago") {
       setStep("confirmacion");
+      fireConfetti({ fullScreen: true });
     }
   }, [ticketStatus.data?.status, step]);
 
@@ -65,20 +67,37 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
     <Modal onClose={onClose}>
       <div className="p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-gold text-xl font-bold">
-            {step === "seleccion" && "Paso 1: Elige tus números"}
-            {step === "descuento" && "Paso 2: Descuento Hold-to-Earn"}
-            {step === "pago" && "Paso 3: Paga con QR"}
-            {step === "confirmacion" && "✅ ¡Ticket activo!"}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-neon-pink text-xl font-bold">
+            <span className="drop-shadow-[0_0_8px_rgba(236,72,153,0.6)]">🎱</span>{" "}
+            {step === "seleccion" && "Elige tus números"}
+            {step === "descuento" && "Descuento Hold-to-Earn"}
+            {step === "pago" && "Paga con QR"}
+            {step === "confirmacion" && "¡Ticket activo!"}
           </h2>
-          <button onClick={onClose} className="text-muted hover:text-gold text-xl">✕</button>
+          <button onClick={onClose} className="text-muted hover:text-neon-pink text-xl">✕</button>
+        </div>
+
+        {/* Barra de progreso de 4 pasos */}
+        <div className="flex gap-1.5 mb-5">
+          {(["seleccion", "descuento", "pago", "confirmacion"] as Step[]).map((s, i) => {
+            const currentIdx = (["seleccion", "descuento", "pago", "confirmacion"] as Step[]).indexOf(step);
+            const isActive = i <= currentIdx;
+            return (
+              <div
+                key={s}
+                className={`flex-1 h-1 rounded-full transition-all ${
+                  isActive ? "bg-cta-gradient shadow-glow-pink" : "bg-muted/30"
+                }`}
+              />
+            );
+          })}
         </div>
 
         {/* Aviso: sin sorteo activo */}
         {sinSorteo && step === "seleccion" && (
-          <div className="bg-red/10 border border-red/30 rounded-lg p-3 mb-4 text-center">
-            <p className="text-red text-sm">
+          <div className="bg-neon-red/10 border border-neon-red/30 rounded-lg p-3 mb-4 text-center">
+            <p className="text-neon-red text-sm">
               ⚠️ No hay un sorteo activo ahora mismo. Vuelve cuando abra el próximo sorteo.
             </p>
           </div>
@@ -86,8 +105,8 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
 
         {/* Error de creación */}
         {errorMsg && step === "descuento" && (
-          <div className="bg-red/10 border border-red/30 rounded-lg p-3 mb-4 text-center">
-            <p className="text-red text-sm">{errorMsg}</p>
+          <div className="bg-neon-red/10 border border-neon-red/30 rounded-lg p-3 mb-4 text-center">
+            <p className="text-neon-red text-sm">{errorMsg}</p>
           </div>
         )}
 
@@ -129,7 +148,7 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
         {step === "descuento" && (
           <div className="space-y-4 text-center">
             <p className="text-4xl">🪙</p>
-            <p className="text-gold font-bold">¿Tienes tokens Moonyetis?</p>
+            <p className="text-neon-yellow font-bold">¿Tienes tokens Moonyetis?</p>
             <p className="text-muted-light text-sm">
               Ingresa tu dirección Bitcoin para verificar tu balance BRC-20 y obtener 20% de descuento.
             </p>
@@ -152,7 +171,7 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
         {/* Paso 3: Pago QR */}
         {step === "pago" && ticket && (
           <div className="space-y-4 text-center">
-            <p className="text-gold font-bold text-lg">Paga {ticket.expectedAmount} FB</p>
+            <p className="text-neon-cyan font-bold text-lg">Paga {ticket.expectedAmount} FB</p>
             <div className="bg-white rounded-xl p-4 inline-block" dangerouslySetInnerHTML={{ __html: ticket.qrSvg }} />
             <p className="text-muted-light text-sm">Escanea con Sparrow / UniSat o copia:</p>
             <div className="flex gap-2 justify-center">
@@ -173,7 +192,7 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
         {/* Paso 4: Confirmación */}
         {step === "confirmacion" && ticket && (
           <div className="space-y-4 text-center">
-            <p className="text-green text-2xl font-bold">¡Ticket activo!</p>
+            <p className="text-neon-green text-2xl font-bold">✅ ¡Ticket activo!</p>
             <div className="bg-background-card rounded-xl p-4 inline-block">
               <p className="text-muted text-xs mb-2">Tu combinación</p>
               <div className="flex gap-2 justify-center">

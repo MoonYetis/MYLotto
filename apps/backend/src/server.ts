@@ -1,10 +1,13 @@
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import Fastify from "fastify";
 import { buildDeps } from "./dependencies.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerTicketRoutes } from "./routes/tickets.js";
 import { registerSorteoRoutes } from "./routes/sorteos.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Carga el .env en process.env antes de construir las dependencias.

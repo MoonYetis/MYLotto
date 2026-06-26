@@ -1,20 +1,23 @@
 import { CrearSorteoForm } from "@/components/admin/CrearSorteoForm";
 import { GanadoresAdmin } from "@/components/admin/GanadoresAdmin";
-import { Card } from "@/components/ui/Card";
+import { Navbar } from "@/components/ui/Navbar";
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-gold text-2xl font-bold text-center mb-2">⚙️ Panel Admin</h1>
-      <Card className="mb-6 border-gold/30 bg-gold/5">
-        <p className="text-gold text-sm text-center">
-          ⚠️ Panel de administración — sin auth. Opera con cuidado.
-        </p>
-      </Card>
-      <div className="space-y-4">
-        <CrearSorteoForm />
-        <GanadoresAdmin />
-      </div>
-    </main>
+    <>
+      <Navbar />
+      <main className="min-h-screen max-w-2xl mx-auto px-4 py-8 content-layer">
+        <h1 className="text-2xl font-black text-white text-center mb-6">
+          <span className="drop-shadow-[0_0_10px_rgba(236,72,153,0.6)]">⚙️ Admin</span>
+        </h1>
+        <div className="bg-gradient-to-r from-neon-yellow/10 to-neon-pink/10 border border-neon-yellow/30 rounded-xl p-3 mb-6 text-center">
+          <p className="text-xs text-neon-yellow font-bold">⚠️ Panel de administración — sin auth</p>
+        </div>
+        <div className="space-y-6">
+          <CrearSorteoForm />
+          <GanadoresAdmin />
+        </div>
+      </main>
+    </>
   );
 }

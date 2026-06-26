@@ -22,6 +22,7 @@
     "workers": "tsx src/orchestrator.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@myloto/brc20": "workspace:*",
     "@myloto/config": "workspace:*",
     "@myloto/crypto": "workspace:*",

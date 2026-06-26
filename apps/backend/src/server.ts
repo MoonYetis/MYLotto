@@ -2,6 +2,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import { buildDeps } from "./dependencies.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerTicketRoutes } from "./routes/tickets.js";
@@ -47,6 +48,16 @@ async function main(): Promise<void> {
         censor: "[REDACTED]",
       },
     },
+  });
+
+  // --- CORS: la web (lotto.moonyetis.com) llama al backend (api-lotto.) ---
+  // CORS_ORIGINS permite sobreescribir; por defecto permite la web en prod + localhost en dev.
+  const corsOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(",").map((s) => s.trim())
+    : ["https://lotto.moonyetis.com", "http://localhost:3001"];
+  await app.register(cors, {
+    origin: corsOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
 
   registerHealthRoutes(app, deps);

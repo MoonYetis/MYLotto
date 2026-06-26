@@ -1,10 +1,35 @@
+import { resolve } from "node:path";
+import { homedir } from "node:os";
 import Fastify from "fastify";
 import { buildDeps } from "./dependencies.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerTicketRoutes } from "./routes/tickets.js";
 import { registerSorteoRoutes } from "./routes/sorteos.js";
 
+/**
+ * Carga el .env en process.env antes de construir las dependencias.
+ * Probusca desde la raíz del repo (apps/backend/../..) y, si no existe,
+ * desde ~/MYLotto/.env (deploy en el nodo-desktop).
+ * Silencioso si el archivo no existe (las vars pueden venir del entorno).
+ */
+function loadEnvFile(): void {
+  const candidates = [
+    resolve(__dirname, "../../.env"),
+    resolve(process.cwd(), ".env"),
+    resolve(homedir(), "MYLotto/.env"),
+  ];
+  for (const path of candidates) {
+    try {
+      process.loadEnvFile(path);
+      return;
+    } catch {
+      // archivo no existe o no legible, probar el siguiente
+    }
+  }
+}
+
 async function main(): Promise<void> {
+  loadEnvFile();
   const deps = buildDeps();
   const app = Fastify({
     logger: {

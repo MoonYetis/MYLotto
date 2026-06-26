@@ -1,14 +1,26 @@
-import { JackpotCard } from "@/components/dashboard/JackpotCard";
-import { ComprarButton } from "@/components/dashboard/ComprarButton";
+import { Navbar } from "@/components/ui/Navbar";
+import { HeroSection } from "@/components/home/HeroSection";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { LastResult } from "@/components/home/LastResult";
+import { LiveStats } from "@/components/home/LiveStats";
+import { Footer } from "@/components/home/Footer";
+import { getSorteo } from "@/lib/api";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Traer el último sorteo finalizado para mostrar en LastResult.
+  // Intentamos el sorteo #1 por defecto; si no existe, la sección no renderiza.
+  const ultimoSorteo = await getSorteo(1);
+
   return (
-    <main className="min-h-screen max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-gold text-3xl font-bold text-center mb-6">🎱 MYLoto</h1>
-      <JackpotCard />
-      <div className="text-center mt-4">
-        <ComprarButton />
-      </div>
-    </main>
+    <>
+      <Navbar />
+      <main>
+        <HeroSection />
+        <HowItWorks />
+        <LastResult sorteo={ultimoSorteo} />
+        <LiveStats />
+      </main>
+      <Footer />
+    </>
   );
 }

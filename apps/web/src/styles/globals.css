@@ -2,7 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #0f0f1e;
-  color: #e2e8f0;
+@layer base {
+  body {
+    @apply bg-background text-muted-light;
+    background-image: theme("backgroundImage.vegas-main");
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* Textura diagonal sutil sobre todo */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: theme("backgroundImage.vegas-diagonal");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Scrollbar neon */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0414;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ec4899, #22d3ee);
+    border-radius: 5px;
+  }
+
+  /* Selección neon */
+  ::selection {
+    background: rgba(236, 72, 153, 0.3);
+    color: #fff;
+  }
+}
+
+@layer components {
+  /* Wrapper para contenido encima de la textura */
+  .content-layer {
+    @apply relative z-10;
+  }
 }

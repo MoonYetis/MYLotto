@@ -31,14 +31,19 @@ export function useCreateTicket() {
   });
 }
 
-// Wizard: polling de estado (5s mientras PENDIENTE, se detiene al ACTIVO)
+// Wizard: polling de estado (5s mientras no esté ACTIVO).
+// Resiliente: si una petición falla (getTicket devuelve null por catch),
+// seguimos polleando — solo paramos cuando vemos status === "ACTIVO" de verdad.
 export function useTicketStatus(id: number | null) {
   return useQuery({
     queryKey: ["ticket", id],
     queryFn: () => (id ? getTicket(id) : null),
     enabled: id !== null,
-    refetchInterval: (query) =>
-      query.state.data?.status === "PENDIENTE" ? 5_000 : false,
+    refetchInterval: (query) => {
+      // Paramos el polling solo cuando tenemos confirmación explícita de ACTIVO.
+      // null (error de red / no encontrado) NO detiene el polling.
+      return query.state.data?.status === "ACTIVO" ? false : 5_000;
+    },
   });
 }
 

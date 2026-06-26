@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { NumberBall } from "@/components/ui/NumberBall";
 import { NumberGrid } from "./NumberGrid";
 import { PowerballGrid } from "./PowerballGrid";
-import { useCreateTicket, useTicketStatus } from "@/lib/hooks";
-import { BALOTAS_TO_SELECT } from "@/lib/constants";
+import { useCreateTicket, useTicketStatus, useSorteoActivo } from "@/lib/hooks";
+import { BALOTAS_TO_SELECT, BALOTAS_MAX, POWERBALL_MAX } from "@/lib/constants";
 import type { TicketResponse } from "@/lib/api";
 
 type Step = "seleccion" | "descuento" | "pago" | "confirmacion";
@@ -19,14 +19,18 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
   const [powerball, setPowerball] = useState<number | null>(null);
   const [brc20Address, setBrc20Address] = useState("");
   const [ticket, setTicket] = useState<TicketResponse | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const createTicket = useCreateTicket();
   const ticketStatus = useTicketStatus(ticket?.id ?? null);
+  const { data: sorteo } = useSorteoActivo();
 
-  // Avanzar a confirmación cuando el ticket se activa
-  if (ticketStatus.data?.status === "ACTIVO" && step === "pago") {
-    setStep("confirmacion");
-  }
+  // Avanzar a confirmación cuando el ticket se activa (en efecto, no en render)
+  useEffect(() => {
+    if (ticketStatus.data?.status === "ACTIVO" && step === "pago") {
+      setStep("confirmacion");
+    }
+  }, [ticketStatus.data?.status, step]);
 
   const toggleBalota = (n: number) => {
     setBalotas((prev) =>
@@ -36,14 +40,26 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
 
   const handleCrear = async () => {
     if (!powerball || balotas.length !== BALOTAS_TO_SELECT) return;
-    const result = await createTicket.mutateAsync({
-      n1: balotas[0]!, n2: balotas[1]!, n3: balotas[2]!, n4: balotas[3]!, n5: balotas[4]!,
-      powerball,
-      ...(brc20Address ? { brc20Address } : {}),
-    });
-    setTicket(result);
-    setStep("pago");
+    setErrorMsg(null);
+    try {
+      const result = await createTicket.mutateAsync({
+        n1: balotas[0]!, n2: balotas[1]!, n3: balotas[2]!, n4: balotas[3]!, n5: balotas[4]!,
+        powerball,
+        ...(brc20Address ? { brc20Address } : {}),
+      });
+      setTicket(result);
+      setStep("pago");
+    } catch (err) {
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : "No se pudo crear el boleto. Intenta de nuevo.",
+      );
+    }
   };
+
+  // Si no hay sorteo activo, el wizard no debería dejar avanzar.
+  const sinSorteo = !sorteo;
 
   return (
     <Modal onClose={onClose}>
@@ -58,6 +74,22 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
           </h2>
           <button onClick={onClose} className="text-muted hover:text-gold text-xl">✕</button>
         </div>
+
+        {/* Aviso: sin sorteo activo */}
+        {sinSorteo && step === "seleccion" && (
+          <div className="bg-red/10 border border-red/30 rounded-lg p-3 mb-4 text-center">
+            <p className="text-red text-sm">
+              ⚠️ No hay un sorteo activo ahora mismo. Vuelve cuando abra el próximo sorteo.
+            </p>
+          </div>
+        )}
+
+        {/* Error de creación */}
+        {errorMsg && step === "descuento" && (
+          <div className="bg-red/10 border border-red/30 rounded-lg p-3 mb-4 text-center">
+            <p className="text-red text-sm">{errorMsg}</p>
+          </div>
+        )}
 
         {/* Paso 1: Selección */}
         {step === "seleccion" && (
@@ -75,16 +107,16 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
                 variant="secondary"
                 onClick={() => {
                   const random = new Set<number>();
-                  while (random.size < 5) random.add(Math.floor(Math.random() * 69) + 1);
+                  while (random.size < BALOTAS_TO_SELECT) random.add(Math.floor(Math.random() * BALOTAS_MAX) + 1);
                   setBalotas([...random].sort((a, b) => a - b));
-                  setPowerball(Math.floor(Math.random() * 26) + 1);
+                  setPowerball(Math.floor(Math.random() * POWERBALL_MAX) + 1);
                 }}
               >
                 🎲 Aleatorio
               </Button>
               <Button
                 variant="primary"
-                disabled={balotas.length !== 5 || powerball === null}
+                disabled={sinSorteo || balotas.length !== BALOTAS_TO_SELECT || powerball === null}
                 onClick={() => setStep("descuento")}
               >
                 Siguiente →

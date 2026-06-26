@@ -1,11 +1,7 @@
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+import { TIER_DESC, formatMonto } from "@/lib/constants";
 import type { GanadorResponse } from "@/lib/api";
-
-const TIER_DESC: Record<number, string> = {
-  1: "5 + PB (Jackpot)", 2: "5 balotas", 3: "4 + PB", 4: "4 balotas",
-  5: "3 + PB", 6: "3 balotas", 7: "2 + PB", 8: "1 + PB", 9: "0 + PB",
-};
 
 export function GanadoresList({ ganadores }: { ganadores: GanadorResponse[] }) {
   if (ganadores.length === 0) {
@@ -22,7 +18,7 @@ export function GanadoresList({ ganadores }: { ganadores: GanadorResponse[] }) {
               <span className="text-muted text-xs ml-2">#{g.ticketId}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gold font-bold text-sm">{g.monto} FB</span>
+              <span className="text-gold font-bold text-sm">{formatMonto(g.monto)} FB</span>
               {g.pagado ? <Badge variant="finalizado">Pagado</Badge> : <Badge variant="pendiente">Pendiente</Badge>}
             </div>
           </div>

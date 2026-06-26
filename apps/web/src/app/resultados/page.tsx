@@ -13,6 +13,13 @@ export default function ResultadosPage() {
   const { data: sorteo, isLoading } = useSorteo(sorteoId);
   const { data: ganadores } = useGanadores(sorteoId);
 
+  const handleSorteoChange = (value: string) => {
+    const n = Number(value);
+    if (value !== "" && Number.isInteger(n) && n > 0) {
+      setSorteoId(n);
+    }
+  };
+
   return (
     <main className="min-h-screen max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-gold text-2xl font-bold text-center mb-6">🏆 Resultados</h1>
@@ -21,7 +28,7 @@ export default function ResultadosPage() {
         <input
           type="number"
           value={sorteoId}
-          onChange={(e) => setSorteoId(Number(e.target.value))}
+          onChange={(e) => handleSorteoChange(e.target.value)}
           className="w-20 bg-background-card border border-border rounded-lg px-3 py-2 text-center text-muted-light"
           min={1}
         />

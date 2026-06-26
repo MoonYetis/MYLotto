@@ -5,16 +5,20 @@ import { useGanadores, usePagarGanador } from "@/lib/hooks";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-
-const TIER_DESC: Record<number, string> = {
-  1: "Jackpot", 2: "5 balotas", 3: "4+PB", 4: "4 balotas",
-  5: "3+PB", 6: "3 balotas", 7: "2+PB", 8: "1+PB", 9: "PB",
-};
+import { TIER_DESC, formatMonto } from "@/lib/constants";
 
 export function GanadoresAdmin() {
   const [sorteoId, setSorteoId] = useState(1);
   const { data: ganadores } = useGanadores(sorteoId);
   const pagar = usePagarGanador();
+
+  const handleSorteoChange = (value: string) => {
+    const n = Number(value);
+    // Ignorar vacío/NaN/0 — no dispara peticiones inválidas a /sorteos/0
+    if (value !== "" && Number.isInteger(n) && n > 0) {
+      setSorteoId(n);
+    }
+  };
 
   return (
     <Card>
@@ -23,7 +27,7 @@ export function GanadoresAdmin() {
         <input
           type="number"
           value={sorteoId}
-          onChange={(e) => setSorteoId(Number(e.target.value))}
+          onChange={(e) => handleSorteoChange(e.target.value)}
           className="w-16 bg-background border border-border rounded px-2 py-1 text-center text-sm text-muted-light"
           min={1}
         />
@@ -35,7 +39,7 @@ export function GanadoresAdmin() {
               <div className="text-sm">
                 <span className="text-gold font-semibold">{TIER_DESC[g.tier] ?? `Tier ${g.tier}`}</span>
                 <span className="text-muted ml-2">#{g.ticketId}</span>
-                <span className="text-gold ml-2">{g.monto} FB</span>
+                <span className="text-gold ml-2">{formatMonto(g.monto)} FB</span>
               </div>
               {g.pagado ? (
                 <Badge variant="finalizado">Pagado</Badge>
@@ -44,9 +48,9 @@ export function GanadoresAdmin() {
                   variant="secondary"
                   className="text-xs px-3 py-1"
                   onClick={() => pagar.mutate(g.id)}
-                  disabled={pagar.isPending}
+                  disabled={pagar.isPending && pagar.variables === g.id}
                 >
-                  Marcar pagado
+                  {pagar.isPending && pagar.variables === g.id ? "Pagando..." : "Marcar pagado"}
                 </Button>
               )}
             </div>

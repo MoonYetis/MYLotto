@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { BACKEND_URL } from "./constants";
 import {
   getSorteoActivo,
   getJackpot,
@@ -71,4 +72,36 @@ export function usePagarGanador() {
     mutationFn: (id: number) => markGanadorPagado(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ganadores"] }),
   });
+}
+
+/**
+ * Hook que calcula una cuenta regresiva basada en bloques restantes.
+ * Consulta el bloque actual cada 60s (via /health) y estima el tiempo.
+ * Devuelve un string legible ("2d 4h 30m") o null mientras carga.
+ */
+export function useCountdown(bloqueCierre: number | undefined): string | null {
+  const { data: health } = useQuery({
+    queryKey: ["health-for-countdown"],
+    queryFn: () =>
+      fetch(`${BACKEND_URL}/health`).then(
+        (r) => r.json() as Promise<{ node: { blocks: number } }>,
+      ),
+    refetchInterval: 60_000,
+    enabled: bloqueCierre !== undefined,
+  });
+
+  if (!bloqueCierre || !health) return null;
+
+  const bloquesRestantes = bloqueCierre - health.node.blocks;
+  if (bloquesRestantes <= 0) return "Cerrando";
+
+  // 10 min por bloque (600000 ms) — tiempo promedio de bloque Fractal
+  const totalMin = Math.floor((bloquesRestantes * 600_000) / 60_000);
+  const days = Math.floor(totalMin / 1440);
+  const hours = Math.floor((totalMin % 1440) / 60);
+  const minutes = totalMin % 60;
+
+  if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
 }

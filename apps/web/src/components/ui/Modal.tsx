@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function Modal({
@@ -10,7 +11,10 @@ export function Modal({
   children: ReactNode;
   onClose: () => void;
 }) {
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
+    setMounted(true);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -22,7 +26,11 @@ export function Modal({
     };
   }, [onClose]);
 
-  return (
+  // Renderizar solo en el cliente (SSR-safe) y fuera del árbol de componentes
+  // para evitar problemas de stacking context (z-index) con animaciones Framer Motion.
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
@@ -42,6 +50,7 @@ export function Modal({
           {children}
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

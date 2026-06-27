@@ -14,6 +14,7 @@ export interface CreateTicketInput {
   n5: number;
   powerball: number;
   userReturnAddress?: string;
+  walletAddress: string;
 }
 
 /** Devuelve el único sorteo ABIERTO, o null si no hay. */
@@ -44,6 +45,7 @@ export async function createTicket(
       n4: input.n4,
       n5: input.n5,
       powerball: input.powerball,
+      walletAddress: input.walletAddress,
       ...(input.userReturnAddress !== undefined
         ? { userReturnAddress: input.userReturnAddress }
         : {}),

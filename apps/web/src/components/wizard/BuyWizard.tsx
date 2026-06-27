@@ -7,15 +7,16 @@ import { Spinner } from "@/components/ui/Spinner";
 import { NumberBall } from "@/components/ui/NumberBall";
 import { NumberGrid } from "./NumberGrid";
 import { PowerballGrid } from "./PowerballGrid";
-import { useCreateTicket, useTicketStatus, useSorteoActivo } from "@/lib/hooks";
+import { useCreateTicket, useTicketStatus, useSorteoActivo, useSession, useAuth } from "@/lib/hooks";
+import { hasWallet } from "@/lib/wallet";
 import { BALOTAS_TO_SELECT, BALOTAS_MAX, POWERBALL_MAX } from "@/lib/constants";
 import { fireConfetti } from "@/lib/confetti";
 import type { TicketResponse } from "@/lib/api";
 
-type Step = "seleccion" | "descuento" | "pago" | "confirmacion";
+type Step = "wallet" | "seleccion" | "descuento" | "pago" | "confirmacion";
 
 export function BuyWizard({ onClose }: { onClose: () => void }) {
-  const [step, setStep] = useState<Step>("seleccion");
+  const [step, setStep] = useState<Step>("wallet");
   const [balotas, setBalotas] = useState<number[]>([]);
   const [powerball, setPowerball] = useState<number | null>(null);
   const [brc20Address, setBrc20Address] = useState("");
@@ -25,6 +26,15 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
   const createTicket = useCreateTicket();
   const ticketStatus = useTicketStatus(ticket?.id ?? null);
   const { data: sorteo } = useSorteoActivo();
+  const { data: sessionAddress } = useSession();
+  const auth = useAuth();
+
+  // Si hay sesión, saltar directamente a selección
+  useEffect(() => {
+    if (sessionAddress && step === "wallet") {
+      setStep("seleccion");
+    }
+  }, [sessionAddress, step]);
 
   // Avanzar a confirmación cuando el ticket se activa (en efecto, no en render)
   useEffect(() => {
@@ -70,6 +80,7 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-neon-pink text-xl font-bold">
             <span className="drop-shadow-[0_0_8px_rgba(236,72,153,0.6)]">🎱</span>{" "}
+            {step === "wallet" && "Conecta tu wallet"}
             {step === "seleccion" && "Elige tus números"}
             {step === "descuento" && "Descuento Hold-to-Earn"}
             {step === "pago" && "Paga con QR"}
@@ -78,10 +89,11 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
           <button onClick={onClose} className="text-muted hover:text-neon-pink text-xl">✕</button>
         </div>
 
-        {/* Barra de progreso de 4 pasos */}
+        {/* Barra de progreso de 5 pasos */}
         <div className="flex gap-1.5 mb-5">
-          {(["seleccion", "descuento", "pago", "confirmacion"] as Step[]).map((s, i) => {
-            const currentIdx = (["seleccion", "descuento", "pago", "confirmacion"] as Step[]).indexOf(step);
+          {(["wallet", "seleccion", "descuento", "pago", "confirmacion"] as Step[]).map((s, i) => {
+            const allSteps = ["wallet", "seleccion", "descuento", "pago", "confirmacion"] as Step[];
+            const currentIdx = allSteps.indexOf(step);
             const isActive = i <= currentIdx;
             return (
               <div
@@ -93,6 +105,30 @@ export function BuyWizard({ onClose }: { onClose: () => void }) {
             );
           })}
         </div>
+
+        {/* Paso 0: Conectar wallet */}
+        {step === "wallet" && (
+          <div className="space-y-4 text-center py-4">
+            <p className="text-4xl">🔗</p>
+            <p className="text-neon-cyan font-bold text-lg">Conecta tu wallet</p>
+            <p className="text-muted-light text-sm">
+              Para comprar un boleto necesitas iniciar sesión con tu wallet Bitcoin.
+              Firmarás un mensaje criptográfico (sin gas, sin transacción).
+            </p>
+            {auth.isError && (
+              <p className="text-neon-red text-sm">
+                {auth.error instanceof Error ? auth.error.message : "Error al conectar wallet"}
+              </p>
+            )}
+            {auth.isPending ? (
+              <p className="text-neon-purple text-sm animate-pulse">Conectando... revisa tu wallet</p>
+            ) : (
+              <Button variant="primary" onClick={() => auth.mutate()} disabled={!hasWallet()}>
+                {hasWallet() ? "🔗 Conectar wallet" : "⚠️ Instala UniSat/Xverse"}
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Aviso: sin sorteo activo */}
         {sinSorteo && step === "seleccion" && (

@@ -119,3 +119,57 @@ export function createSorteo(): Promise<SorteoActivo> {
 export function markGanadorPagado(id: number): Promise<{ id: number; pagado: boolean }> {
   return apiFetch(`/admin/ganadores/${id}/pagar`, { method: "POST" });
 }
+
+// --- Auth (wallet login BIP-322) ---
+
+export async function getNonce(address: string): Promise<{ nonce: string; message: string }> {
+  const res = await fetch(`${BACKEND_URL}/auth/nonce`, {
+    method: "POST",
+    body: JSON.stringify({ address }),
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json();
+}
+
+export async function verifySignature(address: string, message: string, signature: string): Promise<boolean> {
+  const res = await fetch(`${BACKEND_URL}/auth/verify`, {
+    method: "POST",
+    body: JSON.stringify({ address, message, signature }),
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+  return res.ok;
+}
+
+export async function logout(): Promise<void> {
+  await fetch(`${BACKEND_URL}/auth/logout`, { method: "POST", credentials: "include" });
+}
+
+export async function getSession(): Promise<string | null> {
+  const res = await fetch(`${BACKEND_URL}/auth/me`, { credentials: "include" });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.address ?? null;
+}
+
+export interface MyTicket {
+  id: number;
+  sorteoId: number;
+  sorteoEstado: string;
+  status: string;
+  n1: number; n2: number; n3: number; n4: number; n5: number;
+  powerball: number;
+  expectedAmount: string;
+  gano?: boolean;
+  tier?: number;
+  monto?: string;
+  pagado?: boolean;
+}
+
+export async function getMyTickets(): Promise<{ vigentes: MyTicket[]; pasados: MyTicket[] }> {
+  const res = await fetch(`${BACKEND_URL}/me/tickets`, { credentials: "include" });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json();
+}

@@ -53,12 +53,14 @@ export const tickets = pgTable(
     n5: smallint("n5").notNull(),
     powerball: smallint("powerball").notNull(),
     userReturnAddress: text("user_return_address"),
+    walletAddress: text("wallet_address"),
     recibidoEn: timestamp("recibido_en", { withTimezone: true }),
     creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({
     sorteoStatusIdx: index("tickets_sorteo_status").on(t.sorteoId, t.status),
     paymentAddressIdx: index("tickets_payment_address").on(t.paymentAddress),
+    walletAddressIdx: index("tickets_wallet_address").on(t.walletAddress, t.sorteoId),
     combinacionIdx: index("tickets_sorteo_combinacion").on(
       t.sorteoId,
       t.n1,
@@ -121,6 +123,19 @@ export const jackpotPool = pgTable(
   },
   (t) => ({
     singletonCheck: check("chk_singleton", sql`${t.id} = 1`),
+  }),
+);
+
+export const walletSessions = pgTable(
+  "wallet_sessions",
+  {
+    id: bigserial("id", { mode: "bigint" }).primaryKey(),
+    address: text("address").notNull(),
+    nonce: text("nonce").notNull(),
+    creadoEn: timestamp("creado_en", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    addressIdx: index("wallet_sessions_address").on(t.address),
   }),
 );
 

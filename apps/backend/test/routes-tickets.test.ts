@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import Fastify from "fastify";
+import cookie from "@fastify/cookie";
 import { registerTicketRoutes } from "../src/routes/tickets.js";
+import { signJwt } from "../src/services/auth.js";
 import type { AppDeps } from "../src/dependencies.js";
 import type { Logger } from "@myloto/config";
 import type { DbHandle } from "@myloto/db";
@@ -75,6 +77,13 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
       SCRUTINY_CHECK_INTERVAL_MS: 60000,
       DURACION_SORTEO_BLOQUES: 144,
       LIFECYCLE_CHECK_INTERVAL_MS: 60000,
+      SCHEDULE_DAYS: "1,4,6",
+      SCHEDULE_HOUR: 20,
+      SCHEDULE_TIMEZONE: "America/Bogota",
+      SCHEDULE_CHECK_INTERVAL_MS: 60000,
+      BLOCK_TIME_MS: 600000,
+      JWT_SECRET: "test-secret-at-least-16-chars",
+      JWT_EXPIRES_IN: 604800,
     },
     logger,
     db,
@@ -92,9 +101,16 @@ function mockDeps(overrides: Partial<AppDeps> = {}): AppDeps {
 
 async function buildApp(deps: AppDeps) {
   const app = Fastify();
+  await app.register(cookie);
   registerTicketRoutes(app, deps);
   await app.ready();
   return app;
+}
+
+/** Genera un JWT de test válido para simular sesión autenticada. */
+function authCookie(deps: AppDeps): Record<string, string> {
+  const token = signJwt({ address: "bc1qtestwallet" }, deps.env.JWT_SECRET, 3600);
+  return { session: token };
 }
 
 const validBody = { n1: 1, n2: 2, n3: 3, n4: 4, n5: 5, powerball: 6 };
@@ -106,11 +122,13 @@ const VALID_TAPROOT_ADDR =
 
 describe("POST /tickets", () => {
   it("201 con body válido (sin brc20Address → precio completo)", async () => {
-    const app = await buildApp(mockDeps());
+    const deps = mockDeps();
+    const app = await buildApp(deps);
     const res = await app.inject({
       method: "POST",
       url: "/tickets",
       payload: validBody,
+      cookies: authCookie(deps),
     });
     expect(res.statusCode).toBe(201);
     const body = JSON.parse(res.body);
@@ -124,22 +142,26 @@ describe("POST /tickets", () => {
   });
 
   it("400 si balotas fuera de rango", async () => {
-    const app = await buildApp(mockDeps());
+    const deps = mockDeps();
+    const app = await buildApp(deps);
     const res = await app.inject({
       method: "POST",
       url: "/tickets",
       payload: { ...validBody, n5: 200 },
+      cookies: authCookie(deps),
     });
     expect(res.statusCode).toBe(400);
     await app.close();
   });
 
   it("400 si balotas no ordenadas", async () => {
-    const app = await buildApp(mockDeps());
+    const deps = mockDeps();
+    const app = await buildApp(deps);
     const res = await app.inject({
       method: "POST",
       url: "/tickets",
       payload: { n1: 5, n2: 4, n3: 3, n4: 2, n5: 1, powerball: 6 },
+      cookies: authCookie(deps),
     });
     expect(res.statusCode).toBe(400);
     await app.close();
@@ -158,11 +180,13 @@ describe("POST /tickets", () => {
       },
       pool: { end: vi.fn() },
     } as unknown as DbHandle;
-    const app = await buildApp(mockDeps({ db }));
+    const deps = mockDeps({ db });
+    const app = await buildApp(deps);
     const res = await app.inject({
       method: "POST",
       url: "/tickets",
       payload: validBody,
+      cookies: authCookie(deps),
     });
     expect(res.statusCode).toBe(409);
     await app.close();

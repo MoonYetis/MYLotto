@@ -3,10 +3,13 @@ import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
 import { buildDeps } from "./dependencies.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerTicketRoutes } from "./routes/tickets.js";
 import { registerSorteoRoutes } from "./routes/sorteos.js";
+import { registerAuthRoutes } from "./routes/auth.js";
+import { registerMeRoutes } from "./routes/me.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -58,11 +61,17 @@ async function main(): Promise<void> {
   await app.register(cors, {
     origin: corsOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
   });
+
+  // --- Cookies (para JWT de sesión) ---
+  await app.register(cookie);
 
   registerHealthRoutes(app, deps);
   registerTicketRoutes(app, deps);
   registerSorteoRoutes(app, deps);
+  registerAuthRoutes(app, deps);
+  registerMeRoutes(app, deps);
 
   const shutdown = async (signal: string): Promise<void> => {
     deps.logger.info("shutting down", { signal });

@@ -11,8 +11,13 @@ import {
   getGanadores,
   createSorteo,
   markGanadorPagado,
+  getSession,
+  getMyTickets,
+  getNonce,
+  verifySignature,
   type TicketInput,
 } from "./api";
+import { connectWallet, signMessage } from "./wallet";
 
 // Dashboard: refetch cada 30s
 export function useJackpot() {
@@ -104,4 +109,30 @@ export function useCountdown(bloqueCierre: number | undefined): string | null {
   if (days > 0) return `${days}d ${hours}h ${minutes}m`;
   if (hours > 0) return `${hours}h ${minutes}m`;
   return `${minutes}m`;
+}
+
+// --- Auth (wallet login BIP-322) ---
+
+export function useSession() {
+  return useQuery({ queryKey: ["session"], queryFn: getSession });
+}
+
+export function useMyTickets() {
+  return useQuery({ queryKey: ["my-tickets"], queryFn: getMyTickets });
+}
+
+export function useAuth() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const address = await connectWallet();
+      const { nonce, message } = await getNonce(address);
+      const signature = await signMessage(address, message);
+      await verifySignature(address, message, signature);
+      return address;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["session"] });
+    },
+  });
 }

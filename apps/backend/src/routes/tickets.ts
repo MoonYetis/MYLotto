@@ -10,6 +10,7 @@ import {
   getTicketById,
 } from "../services/tickets.js";
 import { resolveTicketPrice } from "../services/pricing.js";
+import { requireAuth } from "../services/auth.js";
 
 const TicketBodySchema = z
   .object({
@@ -37,6 +38,13 @@ export function registerTicketRoutes(
   deps: AppDeps,
 ): void {
   app.post("/tickets", async (req, reply) => {
+    // Requerir auth: la wallet del comprador se lee del JWT (no del body)
+    const walletAddress = requireAuth(req, deps.env.JWT_SECRET);
+    if (!walletAddress) {
+      reply.code(401);
+      return { error: "debes iniciar sesión con tu wallet para comprar" };
+    }
+
     const parsed = TicketBodySchema.safeParse(req.body);
     if (!parsed.success) {
       reply.code(400);
@@ -70,6 +78,7 @@ export function registerTicketRoutes(
       n4: body.n4,
       n5: body.n5,
       powerball: body.powerball,
+      walletAddress,
       ...(body.returnAddress !== undefined
         ? { userReturnAddress: body.returnAddress }
         : {}),

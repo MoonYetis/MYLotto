@@ -61,6 +61,18 @@ const envSchema = z.object({
   // --- Gestión de sorteos (Ciclo 7) ---
   DURACION_SORTEO_BLOQUES: z.coerce.number().int().positive().default(144),
   LIFECYCLE_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(60000),
+
+  // --- Scheduler de sorteos (calendario semanal) ---
+  // Días ISO separados por coma: 1=Lun, 4=Jue, 6=Sáb. El operador puede cambiarlos.
+  SCHEDULE_DAYS: z.string().default("1,4,6"),
+  // Hora del sorteo (0-23), hora local del timezone.
+  SCHEDULE_HOUR: z.coerce.number().int().min(0).max(23).default(20),
+  // Timezone IANA. America/Bogota no tiene DST.
+  SCHEDULE_TIMEZONE: z.string().default("America/Bogota"),
+  // Intervalo de check del scheduler (1 min).
+  SCHEDULE_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(60000),
+  // Tiempo promedio de bloque en Fractal (10 min = 600000 ms).
+  BLOCK_TIME_MS: z.coerce.number().int().positive().default(600000),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -4,11 +4,12 @@ import { motion } from "framer-motion";
 import { CountUp } from "@/components/anim/CountUp";
 import { Particles } from "@/components/anim/Particles";
 import { ComprarButton } from "@/components/dashboard/ComprarButton";
-import { useJackpot, useSorteoActivo } from "@/lib/hooks";
+import { useJackpot, useSorteoActivo, useCountdown } from "@/lib/hooks";
 
 export function HeroSection() {
   const { data: jackpot } = useJackpot();
   const { data: sorteo } = useSorteoActivo();
+  const countdown = useCountdown(sorteo?.bloqueCierre);
 
   return (
     <section className="relative overflow-hidden">
@@ -41,7 +42,7 @@ export function HeroSection() {
         {sorteo && (
           <div className="flex gap-4 text-sm text-neon-purple mb-6">
             <span>🎫 Sorteo #{sorteo.id} · {sorteo.estado}</span>
-            <span>⏱ Bloque {sorteo.bloqueCierre.toLocaleString("es")}</span>
+            <span>⏱ Cierra en {countdown ?? "..."}</span>
           </div>
         )}
 

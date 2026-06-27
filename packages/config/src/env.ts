@@ -73,6 +73,12 @@ const envSchema = z.object({
   SCHEDULE_CHECK_INTERVAL_MS: z.coerce.number().int().positive().default(60000),
   // Tiempo promedio de bloque en Fractal (10 min = 600000 ms).
   BLOCK_TIME_MS: z.coerce.number().int().positive().default(600000),
+
+  // --- Auth (wallet login BIP-322) ---
+  // Secreto para firmar JWT de sesión. OBLIGATORIO en producción.
+  JWT_SECRET: z.string().min(16),
+  // Duración de la sesión JWT en segundos (default 7 días).
+  JWT_EXPIRES_IN: z.coerce.number().int().positive().default(604800),
 });
 
 export type Env = z.infer<typeof envSchema>;

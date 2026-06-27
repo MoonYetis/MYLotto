@@ -68,6 +68,8 @@ function mockDeps(
       SCHEDULE_TIMEZONE: "America/Bogota",
       SCHEDULE_CHECK_INTERVAL_MS: 60000,
       BLOCK_TIME_MS: 600000,
+      JWT_SECRET: "test-secret-at-least-16-chars",
+      JWT_EXPIRES_IN: 604800,
     },
     logger,
     rpc,
